@@ -1,0 +1,80 @@
+#pins
+#ir is connected to GND and 3.3V 
+
+from time import sleep
+import RPi.GPIO as GPIO
+
+# set board reference mode
+GPIO.setmode(GPIO.BCM)
+
+ir_en = 23 #enable
+ir_out = 24 #output
+
+#setup 
+
+GPIO.setup(ir_en,GPIO.OUT)
+GPIO.setup(ir_out,GPIO.IN)
+
+def ir_check():
+	GPIO.output(ir_en, True)
+	sleep(0.001)
+	print(GPIO.input(ir_out))
+	
+	'''if (GPIO.input(ir_out)):
+		objectDetect = False
+	else:
+		objectDetect = True
+		sleep(0.000790)
+		if (GPIO.input(ir_out)):
+			objectDetect = False
+		else:
+			objectDetect = True
+		
+	print(objectDetect)
+	'''
+	GPIO.output(ir_en, False)
+	
+def main():
+	for i in range(1,3000): 
+		sleep(0.01)
+		ir_check()
+		
+try:
+	main()
+	sleep(3)
+	GPIO.cleanup()
+	
+except KeyboardInterrupt:
+	GPIO.cleanup()
+	print("program stopped")
+
+GPIO.cleanup()
+		
+		
+
+
+#C++ code
+'''
+digitalWrite( enablePin, HIGH);     // Enable the internal 38kHz signal.
+microDelay( 210);                   // Wait 210µs (8 pulses of 38kHz).
+if( digitalRead( outputPin))        // If detector Output is HIGH,
+{
+    objectDetect = false;           // then no object was detected;
+}
+else                                // but if the Output is LOW,
+{
+    microDelay( 395);               // wait for another 15 pulses.
+    if( digitalRead( outputPin))    // If the Output is now HIGH,
+    {                               // then first Read was noise
+        objectDetect = false;       // and no object was detected;
+    }
+    else                            // but if the Output is still LOW,
+    {
+        objectDetect = true;        // then an object was truly detected.
+    }
+}
+digitalWrite( enablePin, LOW);      // Disable the internal 38kHz signal.
+'''
+
+
+
