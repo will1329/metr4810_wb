@@ -1,4 +1,11 @@
 #Complitation1
+#Connections List:
+'''
+Stepper Driver: A-12 B-16 C-20 D-21
+Servo Data Pin: 23
+Ir Pins: En-24, Out-25
+LCD Pins: rs-22 en-5 d4-6 d5-13 d6-19 d7-26
+'''
 
 #---------------------libraries-----------------------------------
 
@@ -180,9 +187,7 @@ def Step8():
     GPIO.output(IN3, stepCode[2])
     GPIO.output(IN4, stepCode[3])
     sleep(time)
-
-
-# Umdrehung links herum  
+  
 def ccwfine(step):	
 	for i in range (int(round(step*mrc))):   
 		Step1()
@@ -195,23 +200,6 @@ def ccwfine(step):
 		Step8()  
 		print( "Step Counter Clockwise: ",i)
 
-def ccwcoarse(step):	
-	for i in range (int(round(step*mrc))):   
-		Step1()
-		Step3()
-		Step5()
-		Step7()
-		print( "Step Counter Clockwise: ",i)
-		
-def ccwfulltorque(step):	
-	for i in range (int(round(step*mrc))):   
-		Step4()
-		Step6()
-		Step8()
-		Step2()
-		print( "Step Counter Clockwise",i)
-
-# Umdrehung rechts herum		
 def cwfine(step):
 	for i in range (int(round(step*mrc))):
 		Step8()
@@ -224,27 +212,9 @@ def cwfine(step):
 		Step1()  
 		print( "Step Clockwise",i)
         
-def cwcoarse(step):
-	for i in range (int(round(step*mrc))):
-		Step7()
-		Step5()
-		Step3()
-		Step1()  
-		print( "Step Clockwise",i)
-        
-def cwfulltorque(step):	
-	for i in range (int(round(step*mrc))):   
-		Step2()
-		Step8()
-		Step6()
-		Step4()
-		print( "Step Clockwise",i)
-
-
 #----------------------LCD Methods --------------------------------
 def set_lcd(message):
 	lcd.message = str(message)
-	#
 	
 def clear_lcd():
 	lcd.message = "                \n                "
@@ -259,52 +229,38 @@ def button_pressed():
 		#print('n')
 		return False
 	time.sleep(0.1)
-#-------------------------Servo Methods ---------------------------
-
-def servo_full_sweep():
-	#run each step from 5 - 10
-	j = 8
-	
-	#run each step from 9 to 6 | net: 5,6,7,8,9,10,,9,8,7,6,
-	for i in reversed(range(((lower_dc+1)*j),(j*upper_dc))):
-		p.ChangeDutyCycle((i/j)) #argument is the %duty cycle = duty/frequency, 1/20ms = 5% == -90
-		sleep(0.3/j) 
-		
-	for i in range((lower_dc*j),((upper_dc+1)*j)):
-		p.ChangeDutyCycle((i/j)) #argument is the %duty cycle = duty/frequency, 1/20ms = 5% == -90
-		sleep(0.3/j)
-		
+#-------------------------Servo Methods ---------------------------		
 def servo_open():
 	j = 8
 	
-	#run each step from 9 to 6 | net: 5,6,7,8,9,10,,9,8,7,6,
+	#sweep from upper to lower duty cycles
 	for i in reversed(range(((lower_dc+1)*j),(j*upper_dc))):
 		p.ChangeDutyCycle((i/j)) #argument is the %duty cycle = duty/frequency, 1/20ms = 5% == -90
 		sleep(0.1/j) 
 
 def servo_close():
 	j = 8
+	
+	#sweep from lower back to upper duty cycles
 	for i in range((lower_dc*j),((upper_dc+1)*j)):
 		p.ChangeDutyCycle((i/j)) #argument is the %duty cycle = duty/frequency, 1/20ms = 5% == -90
-		sleep(0.1/j)
-		
-	
-	
-        
-	
+		sleep(0.1/j)	
 
 #-----------------ir methods-------------------------------------------
 def ir_check():
-	GPIO.output(ir_en, True)
+	
+	GPIO.output(ir_en, True) # turn blaster on
 	sleep(0.001)
-	x = GPIO.input(ir_out)
-	GPIO.output(ir_en, False)
+	x = GPIO.input(ir_out)   #read state of receiver False:detection
+	GPIO.output(ir_en, False) # turn blaster off 
 	return x
     
 def hand_detect():
-	x = False
-	i = 0
-	number = 3
+	x = False # Defalt hand not detected 
+	i = 0   #build counter
+	number = 3 # number represents number of consectutive detections represent a hand
+	
+	#if hand detected %number% times in a row return hand detected
 	for j in range(number):
 		if not ir_check():
 			i=i+1
@@ -317,9 +273,9 @@ def hand_detect():
 #-----------------Main-------------------------------------------
 
 def main():
-	total_masks = 10
+	
+	total_masks = 10 #change to fit number of masks loaded0
 	while (total_masks>0):
-		#if True:
 		if hand_detect():
 			
 			set_lcd("360 Stepper     \n                ")
