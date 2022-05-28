@@ -278,22 +278,17 @@ def main():
 	while (total_masks>0):
 		if hand_detect():
 			
-			set_lcd("360 Stepper     \n                ")
+			set_lcd("Dispensing      \n                ")
 			
-			for i in reversed(range(5)):
-				print("rotating stepper in: ", i)
-				sleep(0.1)
-			servo_open()
+			servo_open() #open door
 				
-			ccwfine(360)
+			ccwfine(360) # Attempt to dispense one mask
 			
-			set_lcd("180 Servo       \n                ")
-			for i in reversed(range(5)):
-				print("sweeping servo in: ", i)
-				sleep(0.1)
+			sleep(2) #allow mask to be removed
 				
-			servo_close()
+			servo_close() #close door
 			
+			#delay  dipensing of next mask to prevent unwanted dispence and IR saturation
 			for i in reversed(range(3)):
 				set_lcd("Please Wait: " + str(i) + "\n seconds        " )
 				print("program exiting in: ", i)
@@ -303,8 +298,10 @@ def main():
 			
 			
 		else:
-			set_lcd("push to run     \n masks left: " +  str(total_masks))
-		
+			set_lcd("wave hand under\n masks left: " +  str(total_masks))
+	
+	
+	# if masks empty display reload notification
 	set_lcd("out of masks    \nplease reload :)")
 	sleep(3)
 		
